@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+
+anki_voice_field.log
+voice_notes_log.txt
+voice_note_temp.wav
+tests/_test_voice_notes_log.txt
+
+*.ankiaddon
