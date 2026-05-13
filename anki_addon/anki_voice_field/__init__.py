@@ -120,17 +120,18 @@ def ensure_helper_running() -> bool:
     return False
 
 
-def send_helper_command(path: str, success_message: str) -> None:
+def send_helper_command(path: str, fallback_message: str) -> None:
     if not ensure_helper_running():
         return
 
     try:
-        helper_request(path)
+        response = helper_request(path)
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         showInfo(f"Could not reach Anki Voice Field helper:\n\n{exc}")
         return
 
-    tooltip(success_message)
+    message = str(response.get("message", fallback_message))
+    tooltip(message)
 
 
 def toggle_recording_from_anki() -> None:

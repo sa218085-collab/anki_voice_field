@@ -109,8 +109,15 @@ class VoiceFieldApp:
         )
 
     def _control_toggle_recording(self) -> dict[str, object]:
+        if self.is_busy:
+            message = "Busy. Wait for the current voice note to finish."
+        elif self.recorder.is_recording:
+            message = "Recording stopped. Processing..."
+        else:
+            message = "Recording..."
+
         self.root.after(0, self.toggle_recording)
-        return {"message": "Toggle recording queued."}
+        return {"message": message}
 
     def _control_show_window(self) -> dict[str, object]:
         def show() -> None:
