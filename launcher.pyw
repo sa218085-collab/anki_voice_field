@@ -650,6 +650,7 @@ class VoiceFieldApp:
                 updated_value,
                 transcript,
                 timestamp,
+                wait_for_card_change_seconds=config.FAST_MODE_WAIT_FOR_CARD_CHANGE_SECONDS,
             )
 
             append_saved_voice_note(
@@ -786,6 +787,7 @@ class VoiceFieldApp:
         updated_value: str,
         transcript: str,
         timestamp: datetime,
+        wait_for_card_change_seconds: float | None = config.WAIT_FOR_TARGET_CARD_CHANGE_SECONDS,
     ) -> None:
         with self.anki_write_lock:
             if note_id in get_selected_browser_note_ids():
@@ -797,7 +799,10 @@ class VoiceFieldApp:
                 )
 
             if self._field_requires_card_change_before_save(field_name):
-                self._wait_until_target_card_is_not_current(card_id)
+                self._wait_until_target_card_is_not_current(
+                    card_id,
+                    wait_for_card_change_seconds,
+                )
 
             for attempt in range(1, config.SAVE_RETRY_ATTEMPTS + 1):
                 self.events.put(
@@ -834,14 +839,18 @@ class VoiceFieldApp:
         }
         return field_name.casefold() in required_fields
 
-    def _wait_until_target_card_is_not_current(self, card_id: int | None) -> None:
+    def _wait_until_target_card_is_not_current(
+        self,
+        card_id: int | None,
+        wait_seconds: float | None,
+    ) -> None:
         if card_id is None:
             return
 
-        deadline = time.monotonic() + config.WAIT_FOR_TARGET_CARD_CHANGE_SECONDS
+        deadline = None if wait_seconds is None else time.monotonic() + wait_seconds
         logged_wait = False
 
-        while time.monotonic() <= deadline:
+        while deadline is None or time.monotonic() <= deadline:
             try:
                 current_card_id = get_current_review_card_id()
             except AnkiConnectError:
@@ -853,11 +862,18 @@ class VoiceFieldApp:
                 return
 
             if not logged_wait:
+                wait_message = (
+                    "Target card is still active in the reviewer. Waiting until you "
+                    "move to another card before writing so Anki does not overwrite "
+                    "the field update."
+                    if wait_seconds is None
+                    else "Target card is still active in the reviewer. Waiting briefly "
+                    "before writing so Anki does not overwrite the field update."
+                )
                 self.events.put(
                     (
                         "log",
-                        "Target card is still active in the reviewer. Waiting briefly "
-                        "before writing so Anki does not overwrite the field update.",
+                        wait_message,
                     )
                 )
                 self.events.put(("status", "Waiting for card change before saving."))

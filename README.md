@@ -159,7 +159,8 @@ Review mode:
 Fast mode:
 
 - `Review before saving` is unchecked.
-- After transcription, the helper automatically appends to Anki.
+- After transcription, the helper waits quietly until the target card is no
+  longer active, then automatically appends to Anki.
 - A read-only transcript confirmation appears after the verified save.
 - This is fastest.
 
