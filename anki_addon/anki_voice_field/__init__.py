@@ -15,8 +15,8 @@ from aqt.utils import getText, qconnect, showInfo, tooltip
 
 
 DEFAULT_CONFIG = {
-    "helper_project_folder": r"D:\Computer Science\projects\python\anki_voice_field",
-    "helper_pythonw_path": r"D:\Computer Science\projects\python\anki_voice_field\.venv\Scripts\pythonw.exe",
+    "helper_project_folder": "__BUNDLED__",
+    "helper_pythonw_path": "__AUTO__",
     "control_url": "http://127.0.0.1:47866",
     "hotkey": "F8",
     "auto_start_helper": True,
@@ -31,6 +31,10 @@ _shortcuts: list[QShortcut] = []
 _actions: list[QAction] = []
 
 
+def addon_folder() -> Path:
+    return Path(__file__).resolve().parent
+
+
 def addon_config() -> dict[str, Any]:
     config = mw.addonManager.getConfig(__name__)
     if not isinstance(config, dict):
@@ -39,6 +43,20 @@ def addon_config() -> dict[str, Any]:
     merged = DEFAULT_CONFIG.copy()
     merged.update(config)
     return merged
+
+
+def resolve_helper_project_folder(config: dict[str, Any]) -> Path:
+    raw_folder = str(config["helper_project_folder"]).strip()
+    if not raw_folder or raw_folder == "__BUNDLED__":
+        return addon_folder() / "helper"
+    return Path(raw_folder)
+
+
+def resolve_helper_pythonw_path(config: dict[str, Any], project_folder: Path) -> Path:
+    raw_path = str(config["helper_pythonw_path"]).strip()
+    if not raw_path or raw_path == "__AUTO__":
+        return project_folder / ".venv" / "Scripts" / "pythonw.exe"
+    return Path(raw_path)
 
 
 def control_url(path: str) -> str:
@@ -73,15 +91,17 @@ def helper_is_running() -> bool:
 
 def start_helper_process() -> bool:
     config = addon_config()
-    project_folder = Path(str(config["helper_project_folder"]))
-    pythonw_path = Path(str(config["helper_pythonw_path"]))
+    project_folder = resolve_helper_project_folder(config)
+    pythonw_path = resolve_helper_pythonw_path(config, project_folder)
     launcher_path = project_folder / "launcher.pyw"
 
     if not project_folder.exists():
         showInfo(f"Helper project folder was not found:\n\n{project_folder}")
         return False
     if not pythonw_path.exists():
-        showInfo(f"Helper Python executable was not found:\n\n{pythonw_path}")
+        return start_helper_setup(project_folder)
+    if not (project_folder / "requirements.txt").exists():
+        showInfo(f"Helper requirements file was not found:\n\n{project_folder}")
         return False
     if not launcher_path.exists():
         showInfo(f"Helper launcher was not found:\n\n{launcher_path}")
@@ -97,6 +117,32 @@ def start_helper_process() -> bool:
     creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
     subprocess.Popen(args, cwd=str(project_folder), creationflags=creationflags)
     return True
+
+
+def start_helper_setup(project_folder: Path) -> bool:
+    setup_script = project_folder / "setup_helper_env.ps1"
+    if not setup_script.exists():
+        showInfo(
+            "Helper Python environment is not ready, and the setup script was "
+            f"not found:\n\n{setup_script}"
+        )
+        return False
+
+    subprocess.Popen(
+        [
+            "powershell",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(setup_script),
+        ],
+        cwd=str(project_folder),
+    )
+    showInfo(
+        "First-time setup has started in a PowerShell window.\n\n"
+        "When it finishes, restart Anki and use Record / Stop again."
+    )
+    return False
 
 
 def ensure_helper_running() -> bool:

@@ -230,6 +230,17 @@ The personal native add-on now works as a controller for the external helper.
 It adds Anki Tools menu actions and an Anki-local hotkey that send commands to
 the helper's local control server.
 
+The packaged `.ankiaddon` includes:
+
+- the native Anki controller
+- the helper source files
+- a first-run helper setup script
+
+It does not bundle the full Whisper dependency environment or model cache,
+because those are hundreds of megabytes and platform-specific. On first use, the
+add-on can launch the bundled setup script to create the helper `.venv` and
+install dependencies on that computer.
+
 To install the personal add-on locally:
 
 ```powershell
@@ -255,6 +266,12 @@ The shareable file is created at:
 
 ```text
 dist/anki_voice_field.ankiaddon
+```
+
+The package includes the helper source in:
+
+```text
+helper/
 ```
 
 ## Beginner Notes

@@ -1,6 +1,6 @@
 {
-    "helper_project_folder": "D:\\Computer Science\\projects\\python\\anki_voice_field",
-    "helper_pythonw_path": "D:\\Computer Science\\projects\\python\\anki_voice_field\\.venv\\Scripts\\pythonw.exe",
+    "helper_project_folder": "__BUNDLED__",
+    "helper_pythonw_path": "__AUTO__",
     "control_url": "http://127.0.0.1:47866",
     "auto_start_helper": true,
     "show_advanced_menu_items": false,

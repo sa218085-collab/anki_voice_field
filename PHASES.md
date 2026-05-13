@@ -38,9 +38,10 @@ The first Phase 2 milestone is a personal-use controller:
 4. Start/show the external helper.
 5. Send toggle/test commands to the helper over localhost.
 
-The external helper remains the recording/transcription engine. This avoids
-packaging Whisper and microphone dependencies directly inside Anki's Python
-environment.
+The external helper remains the recording/transcription engine. The packaged
+add-on includes the helper source and a setup script, while avoiding bundling
+hundreds of megabytes of compiled Whisper dependencies directly inside Anki's
+Python environment.
 
 Install locally with:
 

@@ -6,6 +6,11 @@ The current add-on is a personal-use controller for the working Phase 1 helper.
 It runs inside Anki, owns the Anki-local hotkey/menu actions, and sends commands
 to the external helper over localhost.
 
+The packaged add-on includes the helper source in a bundled `helper/` folder.
+On first use, if the helper `.venv` does not exist yet, the add-on opens a
+PowerShell setup script that creates the environment and installs the Python
+dependencies.
+
 ## What It Proves
 
 - The add-on loads inside Anki.
@@ -57,6 +62,7 @@ The package zips the contents of `anki_addon/anki_voice_field/`, not the folder
 itself. That matches Anki's add-on packaging format.
 
 Important MVP limitation: this add-on is currently a controller for the external
-Python helper, so another user must also install the Python helper dependencies
-and configure the helper paths in the add-on config. A future public release
+Python helper. The package includes the helper source and setup script, but it
+does not bundle the full Whisper dependency environment or model cache because
+those are hundreds of megabytes and platform-specific. A future public release
 should include a smoother installer or move more logic into the native add-on.

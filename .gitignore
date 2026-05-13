@@ -7,4 +7,9 @@ voice_notes_log.txt
 voice_note_temp.wav
 tests/_test_voice_notes_log.txt
 
+build/
+dist/*
+!dist/
+!dist/anki_voice_field.ankiaddon
 *.ankiaddon
+!dist/anki_voice_field.ankiaddon

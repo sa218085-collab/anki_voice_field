@@ -1,10 +1,12 @@
 # Anki Voice Field
 
 `helper_project_folder`
-: The folder containing the working Phase 1 helper.
+: The folder containing the helper. Use `__BUNDLED__` to use the helper folder
+  packaged inside the add-on.
 
 `helper_pythonw_path`
-: The Python executable used to start the helper without opening a console.
+: The Python executable used to start the helper without opening a console. Use
+  `__AUTO__` to use the bundled helper's `.venv`.
 
 `control_url`
 : The local helper control server URL.
