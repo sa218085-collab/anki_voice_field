@@ -157,6 +157,14 @@ def wait_until_target_card_is_not_current(card_id: int) -> None:
     )
 
 
+def field_requires_card_change_before_save(field_name: str) -> bool:
+    required_fields = {
+        configured_field.casefold()
+        for configured_field in config.FIELDS_THAT_REQUIRE_CARD_CHANGE_BEFORE_SAVE
+    }
+    return field_name.casefold() in required_fields
+
+
 def run(dry_run: bool) -> None:
     instance_lock = acquire_instance_lock()
     _ = instance_lock
@@ -194,7 +202,8 @@ def run(dry_run: bool) -> None:
             "different note, then retry."
         )
 
-    wait_until_target_card_is_not_current(note.card_id)
+    if field_requires_card_change_before_save(field_name):
+        wait_until_target_card_is_not_current(note.card_id)
 
     verified = False
     for attempt in range(1, config.SAVE_RETRY_ATTEMPTS + 1):

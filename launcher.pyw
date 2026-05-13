@@ -789,7 +789,8 @@ class VoiceFieldApp:
                     "note, then retry Save To Anki."
                 )
 
-            self._wait_until_target_card_is_not_current(card_id)
+            if self._field_requires_card_change_before_save(field_name):
+                self._wait_until_target_card_is_not_current(card_id)
 
             for attempt in range(1, config.SAVE_RETRY_ATTEMPTS + 1):
                 self.events.put(
@@ -818,6 +819,13 @@ class VoiceFieldApp:
             f"after {config.SAVE_RETRY_ATTEMPTS} attempts. Close Anki Browser/editor "
             "if it is open, then retry Save To Anki."
         )
+
+    def _field_requires_card_change_before_save(self, field_name: str) -> bool:
+        required_fields = {
+            configured_field.casefold()
+            for configured_field in config.FIELDS_THAT_REQUIRE_CARD_CHANGE_BEFORE_SAVE
+        }
+        return field_name.casefold() in required_fields
 
     def _wait_until_target_card_is_not_current(self, card_id: int | None) -> None:
         if card_id is None:

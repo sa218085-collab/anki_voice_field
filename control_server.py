@@ -35,6 +35,10 @@ def start_control_server(
             return
 
         def _handle_request(self) -> None:
+            content_length = int(self.headers.get("Content-Length", "0") or "0")
+            if content_length:
+                self.rfile.read(content_length)
+
             callback = routes.get(self.path)
             if callback is None:
                 self._write_json(404, {"ok": False, "error": "Unknown command."})
