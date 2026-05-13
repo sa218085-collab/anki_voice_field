@@ -29,12 +29,12 @@ anki_addon/anki_voice_field
 
 5. Restart Anki.
 6. Start reviewing a card.
-7. Use `Tools > Anki Voice Field: Toggle Recording`.
+7. Use `Tools > Anki Voice Field: Record / Stop`.
 
 The default hotkey is `F8`. When the add-on starts the helper, it starts it with
 the helper's global hotkey disabled, so Anki owns `F8`.
 
 ## Next Step
 
-Next, we can make the Anki-side experience nicer: toolbar button, status panel,
-or automatic popup handling.
+The default menu is intentionally simple. Extra test/debug actions can be shown
+by setting `show_advanced_menu_items` to `true` in the add-on config.

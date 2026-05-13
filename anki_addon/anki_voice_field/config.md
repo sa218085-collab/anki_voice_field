@@ -12,6 +12,10 @@
 `auto_start_helper`
 : When true, the add-on starts the helper if it is not already running.
 
+`show_advanced_menu_items`
+: When false, the Tools menu only shows `Anki Voice Field: Record / Stop`.
+  When true, extra test/debug helper actions are shown.
+
 `target_field_name`
 : The preferred field to append notes into.
 

@@ -20,6 +20,7 @@ DEFAULT_CONFIG = {
     "control_url": "http://127.0.0.1:47866",
     "hotkey": "F8",
     "auto_start_helper": True,
+    "show_advanced_menu_items": False,
     "target_field_name": "Lecture Notes",
     "image_occlusion_model_hints": ["Image Occlusion"],
     "image_occlusion_fallback_field_name": "Remarks",
@@ -133,7 +134,7 @@ def send_helper_command(path: str, success_message: str) -> None:
 
 
 def toggle_recording_from_anki() -> None:
-    send_helper_command("/toggle", "Anki Voice Field: toggle recording sent.")
+    send_helper_command("/toggle", "Voice note toggled.")
 
 
 def show_helper_window() -> None:
@@ -261,13 +262,14 @@ def add_tools_action(label: str, callback: Any) -> QAction:
 
 
 def setup_menu_actions() -> None:
-    add_tools_action("Anki Voice Field: Toggle Recording", toggle_recording_from_anki)
-    add_tools_action("Anki Voice Field: Start/Show Helper", show_helper_window)
-    add_tools_action("Anki Voice Field: Test Anki", test_anki_from_helper)
-    add_tools_action(
-        "Anki Voice Field: Append Typed Note (Debug)",
-        append_typed_note_to_current_card,
-    )
+    add_tools_action("Anki Voice Field: Record / Stop", toggle_recording_from_anki)
+
+    if not bool(addon_config()["show_advanced_menu_items"]):
+        return
+
+    add_tools_action("Anki Voice Field: Show Helper Window", show_helper_window)
+    add_tools_action("Anki Voice Field: Test Connection", test_anki_from_helper)
+    add_tools_action("Anki Voice Field: Append Typed Note", append_typed_note_to_current_card)
 
 
 def setup_hotkey() -> None:

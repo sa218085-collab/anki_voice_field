@@ -20,4 +20,4 @@ Copy-Item -Recurse -Force -LiteralPath $Source -Destination $Destination
 Write-Host "Installed personal add-on to:"
 Write-Host $Destination
 Write-Host ""
-Write-Host "Restart Anki, then use Tools > Anki Voice Field: Toggle Recording."
+Write-Host "Restart Anki, then use Tools > Anki Voice Field: Record / Stop."

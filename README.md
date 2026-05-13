@@ -237,7 +237,7 @@ To install the personal add-on locally:
 Then restart Anki and use:
 
 ```text
-Tools > Anki Voice Field: Toggle Recording
+Tools > Anki Voice Field: Record / Stop
 ```
 
 When the add-on starts the helper, it uses `--disable-global-hotkey` so Anki owns
