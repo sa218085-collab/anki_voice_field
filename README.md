@@ -119,8 +119,9 @@ same target card. If it is, the helper waits briefly for you to move off that
 card before saving. This avoids a reviewer timing issue where Anki can overwrite
 an external field update after you answer the card.
 
-By default, that wait only applies to risky fallback fields like `Remarks`.
-Regular `Lecture Notes` saves do not require moving to the next card first.
+For now, that wait applies to all configured target fields. This is slower, but
+it avoids a false success where AnkiConnect briefly shows the transcript and
+then Anki overwrites it after the review card finishes.
 
 That means you can press `F8` to stop recording and then move to the next Anki
 card while transcription finishes. The note that gets updated is the original
