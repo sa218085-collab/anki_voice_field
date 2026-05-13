@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from aqt import mw
-from aqt.qt import QAction, QKeySequence, QShortcut
+from aqt.qt import QAction, QKeySequence, QShortcut, QTimer
 from aqt.utils import getText, qconnect, showInfo, tooltip
 
 
@@ -20,6 +20,8 @@ DEFAULT_CONFIG = {
     "control_url": "http://127.0.0.1:47866",
     "hotkey": "F8",
     "auto_start_helper": True,
+    "auto_launch_helper_on_anki_startup": True,
+    "auto_setup_helper": False,
     "show_advanced_menu_items": False,
     "target_field_name": "Lecture Notes",
     "image_occlusion_model_hints": ["Image Occlusion"],
@@ -89,7 +91,11 @@ def helper_is_running() -> bool:
     return True
 
 
-def start_helper_process() -> bool:
+def start_helper_process(
+    *,
+    allow_setup: bool = True,
+    quiet_missing_environment: bool = False,
+) -> bool:
     config = addon_config()
     project_folder = resolve_helper_project_folder(config)
     pythonw_path = resolve_helper_pythonw_path(config, project_folder)
@@ -99,7 +105,16 @@ def start_helper_process() -> bool:
         showInfo(f"Helper project folder was not found:\n\n{project_folder}")
         return False
     if not pythonw_path.exists():
-        return start_helper_setup(project_folder)
+        if allow_setup and bool(config["auto_setup_helper"]):
+            return start_helper_setup(project_folder)
+        if not quiet_missing_environment:
+            showInfo(
+                "Anki Voice Field's helper environment is not ready yet.\n\n"
+                f"Expected Python here:\n{pythonw_path}\n\n"
+                "Run this setup script once, then restart Anki:\n"
+                f"{project_folder / 'setup_helper_env.ps1'}"
+            )
+        return False
     if not (project_folder / "requirements.txt").exists():
         showInfo(f"Helper requirements file was not found:\n\n{project_folder}")
         return False
@@ -164,6 +179,18 @@ def ensure_helper_running() -> bool:
 
     showInfo("Helper was started, but its control server did not become ready.")
     return False
+
+
+def start_helper_on_anki_startup() -> None:
+    if not bool(addon_config()["auto_launch_helper_on_anki_startup"]):
+        return
+    if helper_is_running():
+        return
+
+    start_helper_process(
+        allow_setup=False,
+        quiet_missing_environment=True,
+    )
 
 
 def send_helper_command(path: str, fallback_message: str) -> None:
@@ -331,3 +358,4 @@ def setup_hotkey() -> None:
 
 setup_menu_actions()
 setup_hotkey()
+QTimer.singleShot(1500, start_helper_on_anki_startup)

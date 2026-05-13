@@ -5,12 +5,19 @@ $Source = Join-Path $ProjectRoot "anki_addon\anki_voice_field"
 $DestinationRoot = Join-Path $env:APPDATA "Anki2\addons21"
 $Destination = Join-Path $DestinationRoot "anki_voice_field"
 $HelperDestination = Join-Path $Destination "helper"
+$ExistingHelperVenv = Join-Path $HelperDestination ".venv"
+$PreservedHelperVenv = $null
 
 if (-not (Test-Path $Source)) {
     throw "Add-on source folder not found: $Source"
 }
 
 New-Item -ItemType Directory -Force -Path $DestinationRoot | Out-Null
+
+if (Test-Path $ExistingHelperVenv) {
+    $PreservedHelperVenv = Join-Path $env:TEMP ("anki_voice_field_venv_" + [guid]::NewGuid())
+    Move-Item -LiteralPath $ExistingHelperVenv -Destination $PreservedHelperVenv
+}
 
 if (Test-Path $Destination) {
     Remove-Item -Recurse -Force -LiteralPath $Destination
@@ -19,6 +26,10 @@ if (Test-Path $Destination) {
 Copy-Item -Recurse -Force -LiteralPath $Source -Destination $Destination
 
 New-Item -ItemType Directory -Force -Path $HelperDestination | Out-Null
+
+if ($PreservedHelperVenv -and (Test-Path $PreservedHelperVenv)) {
+    Move-Item -LiteralPath $PreservedHelperVenv -Destination $ExistingHelperVenv
+}
 
 $HelperFiles = @(
     "anki_client.py",

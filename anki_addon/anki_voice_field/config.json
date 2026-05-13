@@ -3,6 +3,8 @@
     "helper_pythonw_path": "__AUTO__",
     "control_url": "http://127.0.0.1:47866",
     "auto_start_helper": true,
+    "auto_launch_helper_on_anki_startup": true,
+    "auto_setup_helper": false,
     "show_advanced_menu_items": false,
     "target_field_name": "Lecture Notes",
     "image_occlusion_model_hints": ["Image Occlusion"],

@@ -14,6 +14,15 @@
 `auto_start_helper`
 : When true, the add-on starts the helper if it is not already running.
 
+`auto_launch_helper_on_anki_startup`
+: When true, Anki quietly starts the helper at launch if the helper environment
+  already exists.
+
+`auto_setup_helper`
+: When true, the add-on may launch the first-time PowerShell setup script if the
+  helper environment is missing. The default is false so Anki startup never
+  opens a setup window or downloads packages unexpectedly.
+
 `show_advanced_menu_items`
 : When false, the Tools menu only shows `Anki Voice Field: Record / Stop`.
   When true, extra test/debug helper actions are shown.

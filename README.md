@@ -238,13 +238,26 @@ The packaged `.ankiaddon` includes:
 
 It does not bundle the full Whisper dependency environment or model cache,
 because those are hundreds of megabytes and platform-specific. On first use, the
-add-on can launch the bundled setup script to create the helper `.venv` and
-install dependencies on that computer.
+helper environment must be created once with `setup_helper_env.ps1`.
+
+After that one-time setup exists, the add-on starts the helper quietly when Anki
+opens. It uses `pythonw.exe`, so there should be no PowerShell window during
+normal review sessions.
+
+The default add-on config does not automatically launch the setup script from
+inside Anki. This avoids surprise PowerShell windows and surprise package
+downloads while Anki is starting.
 
 To install the personal add-on locally:
 
 ```powershell
 .\install_personal_addon.ps1
+```
+
+If this is the first install on this computer, run the helper setup once:
+
+```powershell
+.\setup_helper_env.ps1
 ```
 
 Then restart Anki and use:
