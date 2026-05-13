@@ -245,6 +245,18 @@ Tools > Anki Voice Field: Record / Stop
 When the add-on starts the helper, it uses `--disable-global-hotkey` so Anki owns
 `F8` and the helper does not also catch the same key press.
 
+To package the add-on for sharing:
+
+```powershell
+.\package_addon.ps1
+```
+
+The shareable file is created at:
+
+```text
+dist/anki_voice_field.ankiaddon
+```
+
 ## Beginner Notes
 
 Read `BEGINNER_NOTES.py` for a guided explanation of the project. It uses Python

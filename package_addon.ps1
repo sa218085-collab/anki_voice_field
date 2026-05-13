@@ -10,6 +10,9 @@ if (-not (Test-Path $Source)) {
     throw "Add-on source folder not found: $Source"
 }
 
+Get-ChildItem -Path $Source -Recurse -Directory -Filter "__pycache__" |
+    Remove-Item -Recurse -Force
+
 New-Item -ItemType Directory -Force -Path $Dist | Out-Null
 Remove-Item -Force -ErrorAction SilentlyContinue -LiteralPath $ZipPath
 Remove-Item -Force -ErrorAction SilentlyContinue -LiteralPath $AddonPath

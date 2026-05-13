@@ -38,3 +38,25 @@ the helper's global hotkey disabled, so Anki owns `F8`.
 
 The default menu is intentionally simple. Extra test/debug actions can be shown
 by setting `show_advanced_menu_items` to `true` in the add-on config.
+
+## Package For Sharing
+
+From the project root:
+
+```powershell
+.\package_addon.ps1
+```
+
+This creates:
+
+```text
+dist/anki_voice_field.ankiaddon
+```
+
+The package zips the contents of `anki_addon/anki_voice_field/`, not the folder
+itself. That matches Anki's add-on packaging format.
+
+Important MVP limitation: this add-on is currently a controller for the external
+Python helper, so another user must also install the Python helper dependencies
+and configure the helper paths in the add-on config. A future public release
+should include a smoother installer or move more logic into the native add-on.
