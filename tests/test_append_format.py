@@ -9,6 +9,7 @@ from anki_client import (
     field_contains_appended_transcript,
 )
 from session_log import append_saved_voice_note
+from transcriber import build_transcription_options
 
 
 class AppendFormatTests(unittest.TestCase):
@@ -111,6 +112,32 @@ class AppendFormatTests(unittest.TestCase):
         fields = {"Front": "", "Back": ""}
 
         self.assertEqual(choose_target_field(fields, "Basic"), "Back")
+
+    def test_medical_transcription_options_include_context(self) -> None:
+        original_mode = config.MEDICAL_TRANSCRIPTION_MODE
+
+        config.MEDICAL_TRANSCRIPTION_MODE = True
+        try:
+            options = build_transcription_options()
+        finally:
+            config.MEDICAL_TRANSCRIPTION_MODE = original_mode
+
+        self.assertEqual(options["language"], "en")
+        self.assertEqual(options["beam_size"], config.WHISPER_BEAM_SIZE)
+        self.assertIn("medical education note", options["initial_prompt"])
+        self.assertIn("hyponatremia", options["hotwords"])
+
+    def test_medical_transcription_options_can_be_disabled(self) -> None:
+        original_mode = config.MEDICAL_TRANSCRIPTION_MODE
+
+        config.MEDICAL_TRANSCRIPTION_MODE = False
+        try:
+            options = build_transcription_options()
+        finally:
+            config.MEDICAL_TRANSCRIPTION_MODE = original_mode
+
+        self.assertIsNone(options["initial_prompt"])
+        self.assertIsNone(options["hotwords"])
 
 
 if __name__ == "__main__":

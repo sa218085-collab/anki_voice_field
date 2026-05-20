@@ -33,6 +33,30 @@ This MVP uses `faster-whisper` for local speech-to-text. It does not require a
 paid cloud API. The first transcription may download a Whisper model. The model
 size is configured in `config.py`.
 
+## Medical Transcription Bias
+
+The helper is configured for medical study notes by default:
+
+```python
+MEDICAL_TRANSCRIPTION_MODE = True
+```
+
+When this is enabled, `transcriber.py` passes a medical context prompt and a
+medical glossary to `faster-whisper`. This biases the transcript toward anatomy,
+physiology, pathology, pharmacology, labs, disease names, medication names, and
+clinical abbreviations.
+
+To tune it, edit these values in `config.py`:
+
+```python
+MEDICAL_TRANSCRIPTION_PROMPT = "..."
+MEDICAL_GLOSSARY = (...)
+```
+
+Add terms you personally say often, especially terms Whisper keeps getting
+wrong. This does not guarantee perfect medical accuracy, but it gives the model
+better context before it guesses.
+
 ## Test AnkiConnect Only
 
 Use this before recording audio:

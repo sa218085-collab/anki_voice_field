@@ -38,4 +38,75 @@ CHANNELS = 1
 WHISPER_MODEL_SIZE = "base"
 WHISPER_DEVICE = "cpu"
 WHISPER_COMPUTE_TYPE = "int8"
+WHISPER_LANGUAGE = "en"
+WHISPER_BEAM_SIZE = 1
 PRELOAD_WHISPER_MODEL = True
+
+MEDICAL_TRANSCRIPTION_MODE = True
+MEDICAL_TRANSCRIPTION_PROMPT = (
+    "Transcribe this as a medical education note. Prefer accurate medical "
+    "terminology, anatomy, physiology, pathology, pharmacology, lab values, "
+    "disease names, medication names, and standard clinical abbreviations. "
+    "Do not replace medical terms with similar-sounding everyday words."
+)
+MEDICAL_GLOSSARY = (
+    "acetylcholine",
+    "acidosis",
+    "alkalosis",
+    "anemia",
+    "angina",
+    "arrhythmia",
+    "asthma",
+    "atrial fibrillation",
+    "autoimmune",
+    "beta blocker",
+    "bicarbonate",
+    "bradycardia",
+    "calcium",
+    "chloride",
+    "contraindication",
+    "COPD",
+    "corticosteroid",
+    "creatinine",
+    "diabetes mellitus",
+    "diabetic ketoacidosis",
+    "differential diagnosis",
+    "dopamine",
+    "epinephrine",
+    "GFR",
+    "glomerulus",
+    "glucose",
+    "heart failure",
+    "hepatic",
+    "hyperkalemia",
+    "hypernatremia",
+    "hypertension",
+    "hypokalemia",
+    "hyponatremia",
+    "hypotension",
+    "infarction",
+    "inflammation",
+    "insulin",
+    "ischemia",
+    "jaundice",
+    "leukocytosis",
+    "mechanism of action",
+    "metabolic acidosis",
+    "myocardial infarction",
+    "nephron",
+    "norepinephrine",
+    "NSAID",
+    "osmolality",
+    "pathophysiology",
+    "pharmacology",
+    "pneumonia",
+    "potassium",
+    "pulmonary embolism",
+    "renal",
+    "respiratory acidosis",
+    "sepsis",
+    "serotonin",
+    "sodium",
+    "tachycardia",
+    "thrombocytopenia",
+)

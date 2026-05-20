@@ -40,9 +40,45 @@ def preload_model() -> None:
     get_model()
 
 
+def build_medical_prompt() -> str | None:
+    if not config.MEDICAL_TRANSCRIPTION_MODE:
+        return None
+
+    glossary = ", ".join(config.MEDICAL_GLOSSARY)
+    if not glossary:
+        return config.MEDICAL_TRANSCRIPTION_PROMPT
+
+    return (
+        f"{config.MEDICAL_TRANSCRIPTION_PROMPT} "
+        f"Expected medical terms may include: {glossary}."
+    )
+
+
+def build_medical_hotwords() -> str | None:
+    if not config.MEDICAL_TRANSCRIPTION_MODE:
+        return None
+
+    hotwords = " ".join(config.MEDICAL_GLOSSARY).strip()
+    return hotwords or None
+
+
+def build_transcription_options() -> dict[str, Any]:
+    language = config.WHISPER_LANGUAGE.strip() or None
+
+    return {
+        "language": language,
+        "beam_size": config.WHISPER_BEAM_SIZE,
+        "initial_prompt": build_medical_prompt(),
+        "hotwords": build_medical_hotwords(),
+    }
+
+
 def transcribe_audio(audio_path: Path) -> str:
     model = get_model()
-    segments, _info = model.transcribe(str(audio_path), beam_size=1)
+    segments, _info = model.transcribe(
+        str(audio_path),
+        **build_transcription_options(),
+    )
     transcript = " ".join(segment.text.strip() for segment in segments).strip()
 
     if not transcript:
