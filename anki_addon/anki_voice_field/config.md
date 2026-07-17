@@ -43,3 +43,15 @@
 
 `hotkey`
 : The Anki-local shortcut for toggling recording through the helper.
+
+`review_before_save`
+: When true, completed transcripts open in a modeless native Anki review dialog.
+  The reviewer strip updates this setting immediately.
+
+`dry_run`
+: When true, recordings can be transcribed and reviewed but are never written
+  to Anki. This remains an advanced configuration option.
+
+`poll_interval_ms`
+: How frequently Anki checks the local v2 helper for state changes. Network
+  requests run on a background thread and never block Anki's UI thread.

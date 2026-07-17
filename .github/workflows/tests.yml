@@ -1,0 +1,26 @@
+name: tests
+
+on:
+  push:
+    branches: [main, "codex/**"]
+  pull_request:
+
+jobs:
+  windows-tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Build add-on
+        shell: powershell
+        run: .\package_addon.ps1
+
+      - name: Verify packaged contents
+        run: python scripts/verify_package.py dist/anki_voice_field-v2.0.0.ankiaddon

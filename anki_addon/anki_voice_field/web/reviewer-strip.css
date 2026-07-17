@@ -1,0 +1,150 @@
+#avf-strip {
+  --avf-accent: #2563eb;
+  --avf-danger: #c62828;
+  --avf-warning: #9a6700;
+  align-items: center;
+  background: color-mix(in srgb, var(--canvas, #fff) 92%, var(--avf-accent) 8%);
+  border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  box-sizing: border-box;
+  display: flex;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  gap: 8px;
+  justify-content: center;
+  min-height: 38px;
+  padding: 5px 10px;
+  width: 100%;
+}
+
+#avf-strip button {
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+  border-radius: 7px;
+  cursor: pointer;
+  font: inherit;
+  min-height: 27px;
+  padding: 3px 9px;
+}
+
+#avf-strip button:focus-visible,
+#avf-strip input:focus-visible {
+  outline: 2px solid var(--avf-accent);
+  outline-offset: 2px;
+}
+
+#avf-record {
+  align-items: center;
+  background: var(--avf-accent);
+  color: #fff;
+  display: inline-flex;
+  font-weight: 650 !important;
+  gap: 5px;
+}
+
+#avf-record:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.75);
+  opacity: 0.55;
+}
+
+#avf-record-icon,
+#avf-status-dot {
+  border-radius: 50%;
+  display: inline-block;
+  height: 8px;
+  width: 8px;
+}
+
+#avf-record-icon {
+  color: #fff;
+  font-size: 10px;
+  line-height: 8px;
+}
+
+#avf-status-dot {
+  background: #5f6368;
+  flex: 0 0 auto;
+}
+
+.avf-state-recording #avf-record {
+  background: var(--avf-danger);
+}
+
+.avf-state-recording #avf-status-dot {
+  animation: avf-pulse 1.1s ease-in-out infinite;
+  background: var(--avf-danger);
+}
+
+.avf-state-transcribing #avf-status-dot,
+.avf-state-saving #avf-status-dot,
+.avf-state-starting #avf-status-dot,
+.avf-state-queued #avf-status-dot {
+  background: var(--avf-warning);
+}
+
+.avf-state-ready #avf-status-dot,
+.avf-state-waiting_review #avf-status-dot {
+  background: #22863a;
+}
+
+.avf-state-error #avf-status-dot,
+.avf-state-offline #avf-status-dot {
+  background: var(--avf-danger);
+}
+
+#avf-status {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#avf-field,
+#avf-queue {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  border-radius: 999px;
+  max-width: 190px;
+  overflow: hidden;
+  padding: 3px 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#avf-review-label {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+#avf-review {
+  accent-color: var(--avf-accent);
+}
+
+.avf-hotkey {
+  background: rgb(255 255 255 / 18%);
+  border-radius: 4px;
+  font-size: 10px;
+  padding: 1px 4px;
+}
+
+@keyframes avf-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+
+@media (max-width: 720px) {
+  #avf-strip {
+    flex-wrap: wrap;
+  }
+
+  #avf-status {
+    max-width: 180px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avf-state-recording #avf-status-dot {
+    animation: none;
+  }
+}

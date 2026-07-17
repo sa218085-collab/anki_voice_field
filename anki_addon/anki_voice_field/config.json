@@ -10,5 +10,8 @@
     "image_occlusion_model_hints": ["Image Occlusion"],
     "image_occlusion_fallback_field_name": "Remarks",
     "default_fallback_field_names": ["Back", "Extra", "Back Extra", "Remarks"],
-    "hotkey": "F8"
+    "hotkey": "F8",
+    "review_before_save": true,
+    "dry_run": false,
+    "poll_interval_ms": 250
 }

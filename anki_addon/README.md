@@ -1,68 +1,43 @@
-# Anki Voice Field Add-on
+# Anki Voice Field v2 Add-on
 
-This is Phase 2 of `anki_voice_field`.
+This add-on embeds a voice-note control strip in Anki 25.09.4's reviewer and
+uses a loopback-only headless helper for microphone capture and local Whisper
+transcription.
 
-The current add-on is a personal-use controller for the working Phase 1 helper.
-It runs inside Anki, owns the Anki-local hotkey/menu actions, and sends commands
-to the external helper over localhost.
+## Daily Workflow
 
-The packaged add-on includes the helper source in a bundled `helper/` folder.
-On first use, if the helper `.venv` does not exist yet, the add-on opens a
-PowerShell setup script that creates the environment and installs the Python
-dependencies.
+1. Start reviewing a card.
+2. Press `F8` or click `Record` in the reviewer strip.
+3. Speak, then press `F8` again.
+4. Continue reviewing while the FIFO queue transcribes the audio.
+5. Edit and save the transcript in the modeless Anki dialog, or disable
+   `Review` in the strip for verified automatic saving.
 
-## What It Proves
+The add-on resolves `Lecture Notes` first, then Image Occlusion `Remarks`, then
+`Back`, `Extra`, `Back Extra`, or `Remarks`. The selected card, note, and field
+are locked at recording start.
 
-- The add-on loads inside Anki.
-- It can add a Tools menu item.
-- It can register a hotkey inside Anki.
-- It can start/show the external helper.
-- It can send the toggle-recording command to the helper.
-- It can bind `F8` inside Anki.
-- It still includes a typed-note debug action for testing native note edits.
+## Architecture
 
-## Install For Local Testing
+- `controller.py` owns hooks, the reviewer strip bridge, hotkey, polling, and
+  helper lifecycle.
+- `review_dialog.py` provides the native modeless transcript editor.
+- `web/` contains the responsive light/dark reviewer UI.
+- `helper/headless.pyw` starts the versioned v2 service.
+- `helper/legacy_client.pyw` is an optional troubleshooting UI.
 
-1. Open Anki.
-2. Go to `Tools > Add-ons`.
-3. Click `View Files`.
-4. Copy this folder into the `addons21` folder:
+All helper requests run through Anki's non-collection background executor.
+Only UI updates and dialogs return to the main thread.
 
-```text
-anki_addon/anki_voice_field
-```
-
-5. Restart Anki.
-6. Start reviewing a card.
-7. Use `Tools > Anki Voice Field: Record / Stop`.
-
-The default hotkey is `F8`. When the add-on starts the helper, it starts it with
-the helper's global hotkey disabled, so Anki owns `F8`.
-
-## Next Step
-
-The default menu is intentionally simple. Extra test/debug actions can be shown
-by setting `show_advanced_menu_items` to `true` in the add-on config.
-
-## Package For Sharing
+## Install and Package
 
 From the project root:
 
 ```powershell
+.\install_personal_addon.ps1
 .\package_addon.ps1
+python scripts\verify_package.py dist\anki_voice_field-v2.0.0.ankiaddon
 ```
 
-This creates:
-
-```text
-dist/anki_voice_field.ankiaddon
-```
-
-The package zips the contents of `anki_addon/anki_voice_field/`, not the folder
-itself. That matches Anki's add-on packaging format.
-
-Important MVP limitation: this add-on is currently a controller for the external
-Python helper. The package includes the helper source and setup script, but it
-does not bundle the full Whisper dependency environment or model cache because
-those are hundreds of megabytes and platform-specific. A future public release
-should include a smoother installer or move more logic into the native add-on.
+The personal installer preserves the helper environment, configuration, and
+logs. The packaged add-on intentionally excludes those runtime files.

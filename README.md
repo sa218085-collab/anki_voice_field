@@ -1,10 +1,26 @@
-# anki_voice_field
+# Anki Voice Field
 
-Minimal external Python script for appending a spoken note to the currently
-reviewed Anki card's note field.
+Anki Voice Field records a spoken study note, transcribes it locally with
+Whisper, and safely appends it to the note behind the card you were reviewing.
 
-This is not a native Anki add-on. It talks to Anki Desktop through AnkiConnect at
-`http://localhost:8765`.
+Version 2 provides a native control strip in Anki's reviewer while keeping the
+microphone and Whisper model in a quiet background helper. The helper continues
+to use AnkiConnect at `http://localhost:8765` for verified, append-only writes.
+
+## Version 2 Reviewer UI
+
+After installing v2 and restarting Anki, start reviewing and use the strip below
+the answer controls. It shows:
+
+- Record/Stop and the `F8` shortcut
+- live recording, transcription, review, save, and error status
+- the resolved destination field
+- the number of pending voice notes
+- a persistent `Review` toggle
+
+The card, note, and field are locked as soon as recording starts. You may move
+to another card without redirecting that recording. Review dialogs are modeless,
+so additional recordings can continue to enter the FIFO queue.
 
 ## Safety Rules
 
@@ -237,79 +253,37 @@ Each entry includes:
 The backup log is only written after Anki has been updated and verified. Failed,
 canceled, and dry-run transcripts are not added to this file.
 
-## Native Anki Add-on Later
+## Native Add-on and Background Helper
 
-This MVP is still an external helper. Turning it into a native Anki add-on is
-possible, but local Whisper and microphone dependencies are harder to package
-inside Anki's Python environment. The external helper is simpler and safer for
-the first working version.
+The native add-on lives in `anki_addon/anki_voice_field/`. Its Python controller
+injects the compact strip through Anki's supported webview hooks, communicates
+with JavaScript through `pycmd()`, and performs every helper HTTP request on
+Anki's background executor.
 
-Phase 2 has started in:
+The bundled `headless.pyw` service owns recording, sequential transcription,
+review jobs, verified AnkiConnect writes, and the backup log. It binds only to
+`127.0.0.1` and exposes a versioned `/v2` API. The old Tkinter workflow remains
+available through the advanced legacy client.
 
-```text
-anki_addon/anki_voice_field/
-```
-
-The personal native add-on now works as a controller for the external helper.
-It adds Anki Tools menu actions and an Anki-local hotkey that send commands to
-the helper's local control server.
-
-The packaged `.ankiaddon` includes:
-
-- the native Anki controller
-- the helper source files
-- a first-run helper setup script
-
-It does not bundle the full Whisper dependency environment or model cache,
-because those are hundreds of megabytes and platform-specific. On first use, the
-helper environment must be created once with `setup_helper_env.ps1`.
-
-After that one-time setup exists, the add-on starts the helper quietly when Anki
-opens. It uses `pythonw.exe`, so there should be no PowerShell window during
-normal review sessions.
-
-The default add-on config does not automatically launch the setup script from
-inside Anki. This avoids surprise PowerShell windows and surprise package
-downloads while Anki is starting.
-
-To install the personal add-on locally:
+Install the personal add-on with:
 
 ```powershell
 .\install_personal_addon.ps1
 ```
 
-If this is the first install on this computer, run the helper setup once:
+The installer preserves the existing helper `.venv`, add-on configuration,
+voice-note backup log, and diagnostic log. If the environment has never been
+created, run `setup_helper_env.ps1` once and restart Anki.
 
-```powershell
-.\setup_helper_env.ps1
-```
-
-Then restart Anki and use:
-
-```text
-Tools > Anki Voice Field: Record / Stop
-```
-
-When the add-on starts the helper, it uses `--disable-global-hotkey` so Anki owns
-`F8` and the helper does not also catch the same key press.
-
-To package the add-on for sharing:
+Build the versioned add-on with:
 
 ```powershell
 .\package_addon.ps1
+python scripts\verify_package.py dist\anki_voice_field-v2.0.0.ankiaddon
 ```
 
-The shareable file is created at:
-
-```text
-dist/anki_voice_field.ankiaddon
-```
-
-The package includes the helper source in:
-
-```text
-helper/
-```
+The Whisper environment and model cache remain outside the `.ankiaddon` because
+they are large and platform-specific.
 
 ## Beginner Notes
 
@@ -344,7 +318,10 @@ The test checks the field append behavior.
 - `recorder.py`: push-to-talk microphone recording and unique temp audio files.
 - `transcriber.py`: local transcription using `faster-whisper`.
 - `main.py`: command-line flow and hotkey workflow.
-- `launcher.pyw`: no-PowerShell status window, global hotkey, and queue workflow.
+- `headless.pyw` and `voice_service.py`: v2 service, job queue, and verified writes.
+- `launcher.pyw`: v1 legacy helper retained for rollback and troubleshooting.
+- `legacy_client.pyw`: optional UI client for the v2 service.
+- `anki_addon/anki_voice_field/`: native reviewer strip and review dialog.
 - `session_log.py`: writes successfully saved voice notes to `voice_notes_log.txt`.
 - `tests/test_append_format.py`: unit tests for append formatting.
 
