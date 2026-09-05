@@ -22,6 +22,12 @@ The card, note, and field are locked as soon as recording starts. You may move
 to another card without redirecting that recording. Review dialogs are modeless,
 so additional recordings can continue to enter the FIFO queue.
 
+For settings and troubleshooting without leaving Anki, open **Tools > Add-ons**,
+select **Anki Voice Field**, and click **Config**. The native panel includes the
+same practical controls as the old helper window—Record/Stop, Test Anki, review
+and dry-run toggles, live status, destination, queue, and recent activity—plus
+field-selection and hotkey settings. The external helper UI is optional.
+
 ## Safety Rules
 
 - Only reads the current reviewer card.

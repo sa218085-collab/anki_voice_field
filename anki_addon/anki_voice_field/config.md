@@ -1,5 +1,12 @@
 # Anki Voice Field
 
+Open Anki's **Tools > Add-ons**, select **Anki Voice Field**, and click
+**Config** to use the native settings panel. It includes the recording controls,
+live helper/model status, destination field, queue count, review and dry-run
+toggles, target-field rules, and recent activity. The JSON configuration remains
+the storage format, but normal use no longer requires editing JSON or opening
+the legacy helper.
+
 `helper_project_folder`
 : The folder containing the helper. Use `__BUNDLED__` to use the helper folder
   packaged inside the add-on.
@@ -50,7 +57,7 @@
 
 `dry_run`
 : When true, recordings can be transcribed and reviewed but are never written
-  to Anki. This remains an advanced configuration option.
+  to Anki. This can be changed from the native Config panel.
 
 `poll_interval_ms`
 : How frequently Anki checks the local v2 helper for state changes. Network

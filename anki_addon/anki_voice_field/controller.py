@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 import time
+from collections import deque
 from concurrent.futures import Future
 from pathlib import Path
 from typing import Any, Callable
@@ -18,6 +19,7 @@ from .async_runner import BackgroundRunner
 from .review_dialog import ReviewDialog
 from .review_gate import ReviewGate
 from .service_client import ServiceClient, ServiceClientError
+from .settings_dialog import VoiceSettingsDialog
 
 
 ADDON_MODULE = __package__ or __name__
@@ -66,6 +68,8 @@ class NativeVoiceController:
         self.command_in_flight = False
         self.last_start_attempt = 0.0
         self.active_dialog: ReviewDialog | None = None
+        self.settings_dialog: VoiceSettingsDialog | None = None
+        self.recent_activity: deque[str] = deque(maxlen=150)
         self.shortcuts: list[QShortcut] = []
         self.actions: list[QAction] = []
 
@@ -77,8 +81,11 @@ class NativeVoiceController:
         self._setup_web_assets()
         self._setup_hooks()
         self._setup_menu()
+        self._setup_config_action()
         self._setup_hotkey()
-        QTimer.singleShot(1200, self.ensure_helper_started)
+        self._add_activity("Anki Voice Field v2 loaded inside Anki.")
+        if bool(self.config()["auto_launch_helper_on_anki_startup"]):
+            QTimer.singleShot(1200, self.ensure_helper_started)
 
     def config(self) -> dict[str, Any]:
         stored = mw.addonManager.getConfig(ADDON_MODULE)
@@ -237,6 +244,58 @@ class NativeVoiceController:
         mw.addonManager.writeConfig(ADDON_MODULE, config)
         self.push_ui_state()
 
+    def save_settings(self, updates: dict[str, Any]) -> None:
+        config = self.config()
+        config.update(updates)
+        config["poll_interval_ms"] = max(100, int(config["poll_interval_ms"]))
+        mw.addonManager.writeConfig(ADDON_MODULE, config)
+
+        self.client = ServiceClient(str(config["control_url"]))
+        self.poll_timer.setInterval(int(config["poll_interval_ms"]))
+        self._rebuild_hotkey()
+        self._add_activity("Settings saved in Anki.")
+        tooltip("Anki Voice Field settings saved.")
+        self.push_ui_state()
+
+    def test_connection(self) -> None:
+        if self.helper_state.get("phase") in {"offline", "starting"}:
+            self.ensure_helper_started()
+            QTimer.singleShot(
+                1200,
+                lambda: self._run_command(self.client.test_anki),
+            )
+            return
+        self._run_command(self.client.test_anki)
+
+    def open_settings(self) -> None:
+        if self.settings_dialog is not None:
+            self.settings_dialog.showNormal()
+            self.settings_dialog.raise_()
+            self.settings_dialog.activateWindow()
+            self._refresh_settings_dialog()
+            return
+
+        dialog = VoiceSettingsDialog(
+            mw,
+            self.config(),
+            save_settings=self.save_settings,
+            toggle_recording=self.toggle_recording,
+            test_connection=self.test_connection,
+            retry_helper=self.ensure_helper_started,
+            show_details=self.show_details,
+            open_legacy_client=self.open_legacy_client,
+        )
+        self.settings_dialog = dialog
+
+        def finished(_result: int) -> None:
+            self.settings_dialog = None
+
+        qconnect(dialog.finished, finished)
+        self._refresh_settings_dialog()
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+
     def launch_setup(self) -> None:
         script = self.helper_folder() / "setup_helper_env.ps1"
         if not script.exists():
@@ -295,6 +354,7 @@ class NativeVoiceController:
         showInfo("\n\n".join(parts), title="Anki Voice Field")
 
     def push_ui_state(self) -> None:
+        self._refresh_settings_dialog()
         reviewer = getattr(mw, "reviewer", None)
         bottom = getattr(reviewer, "bottom", None)
         web = getattr(bottom, "web", None)
@@ -459,10 +519,12 @@ class NativeVoiceController:
                 payload = dict(future.result())
             except Exception as exc:
                 self.last_connection_error = str(exc)
+                self._add_activity(str(exc), "Error")
                 tooltip(f"Anki Voice Field: {exc}")
             else:
                 message = str(payload.get("message", ""))
                 if message:
+                    self._add_activity(message)
                     tooltip(message)
             self.poll_state()
             self.push_ui_state()
@@ -473,6 +535,8 @@ class NativeVoiceController:
         for event in events:
             event_type = str(event.get("type", ""))
             message = str(event.get("message", ""))
+            if message:
+                self._add_activity(message, event_type.replace("_", " ").title())
             if event_type in {"saved", "dry_run_complete", "error"} and message:
                 tooltip(message)
 
@@ -537,6 +601,7 @@ class NativeVoiceController:
             self.push_ui_state()
 
     def _setup_menu(self) -> None:
+        self._add_action("Anki Voice Field: Settings", self.open_settings)
         self._add_action("Anki Voice Field: Record / Stop", self.toggle_recording)
         self._add_action("Anki Voice Field: Setup Helper", self.launch_setup)
         if bool(self.config()["show_advanced_menu_items"]):
@@ -546,6 +611,9 @@ class NativeVoiceController:
                 "Anki Voice Field: Test Connection",
                 lambda: self._run_command(self.client.test_anki),
             )
+
+    def _setup_config_action(self) -> None:
+        mw.addonManager.setConfigAction(ADDON_MODULE, self.open_settings)
 
     def _add_action(self, label: str, callback: Callable[[], None]) -> None:
         action = QAction(label, mw)
@@ -566,6 +634,58 @@ class NativeVoiceController:
 
         qconnect(shortcut.activated, activated)
         self.shortcuts.append(shortcut)
+
+    def _rebuild_hotkey(self) -> None:
+        for shortcut in self.shortcuts:
+            shortcut.setEnabled(False)
+            shortcut.deleteLater()
+        self.shortcuts.clear()
+        self._setup_hotkey()
+
+    def _add_activity(self, message: str, label: str = "Info") -> None:
+        message = " ".join(str(message).split())
+        if not message:
+            return
+        self.recent_activity.append(
+            f"{time.strftime('%H:%M:%S')}  {label}: {message}"
+        )
+        self._refresh_settings_dialog()
+
+    def _refresh_settings_dialog(self) -> None:
+        dialog = self.settings_dialog
+        if dialog is None:
+            return
+        recording = bool(self.helper_state.get("recording", False))
+        helper_target = self.helper_state.get("current_target")
+        target = (
+            helper_target
+            if recording and isinstance(helper_target, dict)
+            else self.current_target
+        )
+        if isinstance(target, dict) and target.get("field_name"):
+            destination = str(target["field_name"])
+            if target.get("deck_name"):
+                destination += f" ({target['deck_name']})"
+        else:
+            destination = self.target_error or "Start reviewing a card."
+        phase = str(self.helper_state.get("phase", "offline"))
+        can_record = (
+            not self.command_in_flight
+            and self.current_target is not None
+            and phase not in {"offline", "starting"}
+        )
+        dialog.refresh_status(
+            phase=phase,
+            status=str(
+                self.helper_state.get("status_message", "Voice helper is offline.")
+            ),
+            model_state=str(self.helper_state.get("model_state", "unknown")),
+            destination=destination,
+            queue_count=int(self.helper_state.get("queue_count", 0)),
+            recording=recording,
+            can_record=can_record,
+            activity=list(self.recent_activity),
+        )
 
 
 _controller: NativeVoiceController | None = None

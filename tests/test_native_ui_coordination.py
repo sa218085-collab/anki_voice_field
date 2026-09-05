@@ -53,6 +53,23 @@ class NativeUICoordinationTests(unittest.TestCase):
         gate.next_job([])
         self.assertEqual(gate.handled_job_ids, set())
 
+    def test_addons_config_opens_native_voice_settings(self) -> None:
+        controller_source = (ADDON_FOLDER / "controller.py").read_text(encoding="utf-8")
+        settings_source = (ADDON_FOLDER / "settings_dialog.py").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("setConfigAction(ADDON_MODULE, self.open_settings)", controller_source)
+        self.assertIn("VoiceSettingsDialog", controller_source)
+        for visible_control in (
+            "Start Recording",
+            "Test Anki",
+            "Review before saving",
+            "Dry run",
+            "Recent activity",
+        ):
+            self.assertIn(visible_control, settings_source)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,6 +5,8 @@
 - Embed Record/Stop, status, target field, queue count, and review mode in the
   Anki reviewer bottom bar.
 - Add modeless native transcript review, re-record, cancel, and recovery flows.
+- Add a native Add-ons Config panel with recording controls, helper/model
+  status, review and dry-run settings, field rules, and recent activity.
 - Lock the card, note, and field synchronously when recording starts.
 - Move the recording pipeline into a headless, loopback-only v2 service with
   explicit jobs, FIFO review order, event cursors, and protocol detection.

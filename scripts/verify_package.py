@@ -8,6 +8,7 @@ from pathlib import Path
 REQUIRED_FILES = {
     "__init__.py",
     "controller.py",
+    "settings_dialog.py",
     "manifest.json",
     "web/reviewer-strip.css",
     "web/reviewer-strip.js",

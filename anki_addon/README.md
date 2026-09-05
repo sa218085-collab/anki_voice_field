@@ -13,6 +13,12 @@ transcription.
 5. Edit and save the transcript in the modeless Anki dialog, or disable
    `Review` in the strip for verified automatic saving.
 
+Open **Tools > Add-ons**, select **Anki Voice Field**, and click **Config** for
+the Anki-native control and settings panel. It contains Record/Stop, Test Anki,
+live status, destination and queue information, review and dry-run settings,
+field-selection rules, and recent activity. The external helper window is only
+an optional troubleshooting client.
+
 The add-on resolves `Lecture Notes` first, then Image Occlusion `Remarks`, then
 `Back`, `Extra`, `Back Extra`, or `Remarks`. The selected card, note, and field
 are locked at recording start.
@@ -21,6 +27,7 @@ are locked at recording start.
 
 - `controller.py` owns hooks, the reviewer strip bridge, hotkey, polling, and
   helper lifecycle.
+- `settings_dialog.py` provides the native Add-ons Config panel and live status.
 - `review_dialog.py` provides the native modeless transcript editor.
 - `web/` contains the responsive light/dark reviewer UI.
 - `helper/headless.pyw` starts the versioned v2 service.
