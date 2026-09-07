@@ -20,7 +20,7 @@ start_anki_voice_field.vbs
 Phase 1 talks to Anki through AnkiConnect. Keep this working while Phase 2 is
 being built.
 
-## Phase 2: Native Anki Add-on
+## Phase 2: Native Anki Add-on (v2)
 
 Phase 2 lives in:
 
@@ -30,18 +30,19 @@ anki_addon/anki_voice_field/
 
 This folder is meant to be copied into Anki's `addons21` folder for testing.
 
-The first Phase 2 milestone is a personal-use controller:
+The Phase 2 controller is embedded in Anki's reviewer:
 
-1. Load inside Anki.
-2. Add a Tools menu action.
-3. Add an Anki-local hotkey.
-4. Start/show the external helper.
-5. Send toggle/test commands to the helper over localhost.
+1. A compact bottom strip displays recording state, target field, queue count,
+   and the review-before-save toggle.
+2. The Anki add-on locks the current card, note, and destination field before
+   it asks the helper to record.
+3. A headless local service records, transcribes, queues, writes, and verifies.
+4. Completed transcripts open in modeless native Anki dialogs.
+5. The original helper remains available as the v1 rollback path.
 
-The external helper remains the recording/transcription engine. The packaged
-add-on includes the helper source and a setup script, while avoiding bundling
-hundreds of megabytes of compiled Whisper dependencies directly inside Anki's
-Python environment.
+The external helper remains the recording/transcription engine. The package
+includes its source and setup script while excluding the compiled Whisper
+environment and model cache.
 
 Install locally with:
 

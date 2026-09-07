@@ -6,8 +6,10 @@ $BuildRoot = Join-Path $ProjectRoot "build"
 $BuildAddon = Join-Path $BuildRoot "anki_voice_field"
 $HelperDestination = Join-Path $BuildAddon "helper"
 $Dist = Join-Path $ProjectRoot "dist"
-$ZipPath = Join-Path $Dist "anki_voice_field.zip"
-$AddonPath = Join-Path $Dist "anki_voice_field.ankiaddon"
+$Version = (Get-Content -Raw -LiteralPath (Join-Path $ProjectRoot "VERSION")).Trim()
+$ZipPath = Join-Path $Dist ("anki_voice_field-v" + $Version + ".zip")
+$AddonPath = Join-Path $Dist ("anki_voice_field-v" + $Version + ".ankiaddon")
+$LatestAddonPath = Join-Path $Dist "anki_voice_field.ankiaddon"
 
 if (-not (Test-Path $Source)) {
     throw "Add-on source folder not found: $Source"
@@ -23,13 +25,16 @@ $HelperFiles = @(
     "anki_client.py",
     "config.py",
     "control_server.py",
+    "headless.pyw",
+    "legacy_client.pyw",
     "launcher.pyw",
     "recorder.py",
     "requirements.txt",
     "session_log.py",
     "setup_helper_env.ps1",
     "single_instance.py",
-    "transcriber.py"
+    "transcriber.py",
+    "voice_service.py"
 )
 
 foreach ($HelperFile in $HelperFiles) {
@@ -45,6 +50,9 @@ Remove-Item -Force -ErrorAction SilentlyContinue -LiteralPath $AddonPath
 
 Compress-Archive -Path (Join-Path $BuildAddon "*") -DestinationPath $ZipPath
 Move-Item -LiteralPath $ZipPath -Destination $AddonPath
+Copy-Item -Force -LiteralPath $AddonPath -Destination $LatestAddonPath
 
-Write-Host "Packaged add-on:"
+Write-Host "Packaged versioned add-on:"
 Write-Host $AddonPath
+Write-Host "Updated latest package:"
+Write-Host $LatestAddonPath
