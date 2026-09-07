@@ -12,5 +12,6 @@
     "hotkey": "F8",
     "review_before_save": true,
     "dry_run": false,
+    "reviewer_quick_settings_expanded": true,
     "poll_interval_ms": 250
 }

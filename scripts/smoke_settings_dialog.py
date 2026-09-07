@@ -21,6 +21,7 @@ def main() -> None:
     config = {
         "review_before_save": True,
         "dry_run": False,
+        "reviewer_quick_settings_expanded": True,
         "auto_start_helper": True,
         "auto_launch_helper_on_anki_startup": True,
         "hotkey": "F8",
@@ -59,6 +60,7 @@ def main() -> None:
     dialog._save()
     assert saved and saved[0]["dry_run"] is True
     assert saved[0]["review_before_save"] is True
+    assert saved[0]["reviewer_quick_settings_expanded"] is True
 
     dialog.close()
     app.processEvents()

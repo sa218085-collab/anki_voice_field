@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from aqt import gui_hooks, mw
-from aqt.qt import QKeySequence, QShortcut, QTimer, Qt
+from aqt.qt import QAction, QKeySequence, QShortcut, QTimer, Qt
 from aqt.reviewer import ReviewerBottomBar
 from aqt.utils import qconnect, showInfo, tooltip
 
@@ -38,6 +38,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "hotkey": "F8",
     "review_before_save": True,
     "dry_run": False,
+    "reviewer_quick_settings_expanded": True,
     "poll_interval_ms": 250,
 }
 
@@ -68,6 +69,7 @@ class NativeVoiceController:
         self.last_start_attempt = 0.0
         self.active_dialog: ReviewDialog | None = None
         self.settings_dialog: VoiceSettingsDialog | None = None
+        self.settings_action: QAction | None = None
         self.recent_activity: deque[str] = deque(maxlen=150)
         self.shortcuts: list[QShortcut] = []
 
@@ -78,6 +80,7 @@ class NativeVoiceController:
 
         self._setup_web_assets()
         self._setup_hooks()
+        self._setup_settings_menu_action()
         self._setup_config_action()
         self._setup_hotkey()
         self._add_activity("Anki Voice Field v2 loaded inside Anki.")
@@ -241,6 +244,20 @@ class NativeVoiceController:
         mw.addonManager.writeConfig(ADDON_MODULE, config)
         self.push_ui_state()
 
+    def set_dry_run(self, enabled: bool) -> None:
+        config = self.config()
+        config["dry_run"] = bool(enabled)
+        mw.addonManager.writeConfig(ADDON_MODULE, config)
+        self.push_ui_state()
+
+    def toggle_quick_settings(self) -> None:
+        config = self.config()
+        config["reviewer_quick_settings_expanded"] = not bool(
+            config["reviewer_quick_settings_expanded"]
+        )
+        mw.addonManager.writeConfig(ADDON_MODULE, config)
+        self.push_ui_state()
+
     def save_settings(self, updates: dict[str, Any]) -> None:
         config = self.config()
         config.update(updates)
@@ -387,6 +404,10 @@ class NativeVoiceController:
             "field_available": bool(field_name),
             "queue_count": int(self.helper_state.get("queue_count", 0)),
             "review_before_save": bool(self.config()["review_before_save"]),
+            "dry_run": bool(self.config()["dry_run"]),
+            "settings_expanded": bool(
+                self.config()["reviewer_quick_settings_expanded"]
+            ),
             "action_label": action_label,
         }
         web.eval(f"window.avfSetState && window.avfSetState({json.dumps(payload)});")
@@ -408,22 +429,35 @@ class NativeVoiceController:
         web_content.css.append(f"/_addons/{package}/web/reviewer-strip.css")
         web_content.js.append(f"/_addons/{package}/web/reviewer-strip.js")
         web_content.body += """
-<div id="avf-strip" class="avf-state-starting" role="status" aria-live="polite">
-  <button id="avf-record" type="button" onclick="pycmd('avf:toggle')">
-    <span id="avf-record-icon" aria-hidden="true">●</span>
-    <span id="avf-record-label">Record</span>
-    <span class="avf-hotkey">F8</span>
-  </button>
-  <span id="avf-status-dot" aria-hidden="true"></span>
-  <span id="avf-status">Starting voice helper...</span>
-  <span id="avf-field" title="Destination field">No target field</span>
-  <span id="avf-queue" title="Pending voice notes">Queue 0</span>
-  <label id="avf-review-label" title="Review each transcript before saving">
-    <input id="avf-review" type="checkbox" checked
-      onchange="pycmd('avf:review:' + (this.checked ? '1' : '0'))">
-    Review
-  </label>
-  <button id="avf-action" type="button" hidden onclick="pycmd('avf:context')"></button>
+<div id="avf-root">
+  <div id="avf-strip" class="avf-state-starting" role="status" aria-live="polite">
+    <button id="avf-record" type="button" onclick="pycmd('avf:toggle')">
+      <span id="avf-record-icon" aria-hidden="true">●</span>
+      <span id="avf-record-label">Record</span>
+      <span class="avf-hotkey">F8</span>
+    </button>
+    <span id="avf-status-dot" aria-hidden="true"></span>
+    <span id="avf-status">Starting voice helper...</span>
+    <span id="avf-field" title="Destination field">No target field</span>
+    <span id="avf-queue" title="Pending voice notes">Queue 0</span>
+    <button id="avf-action" type="button" hidden onclick="pycmd('avf:context')"></button>
+    <button id="avf-settings-toggle" type="button" aria-expanded="true"
+      onclick="pycmd('avf:quick-settings:toggle')">Hide settings</button>
+  </div>
+  <div id="avf-quick-settings" aria-label="Anki Voice Field quick settings">
+    <label title="Review and edit each transcript before saving">
+      <input id="avf-review" type="checkbox" checked
+        onchange="pycmd('avf:review:' + (this.checked ? '1' : '0'))">
+      Review before saving
+    </label>
+    <label title="Transcribe and preview without changing the Anki note">
+      <input id="avf-dry-run" type="checkbox"
+        onchange="pycmd('avf:dryrun:' + (this.checked ? '1' : '0'))">
+      Dry run
+    </label>
+    <button id="avf-open-settings" type="button"
+      onclick="pycmd('avf:settings:open')">All settings…</button>
+  </div>
 </div>
 """
 
@@ -434,6 +468,12 @@ class NativeVoiceController:
             self.toggle_recording()
         elif message.startswith("avf:review:"):
             self.set_review_before_save(message.endswith(":1"))
+        elif message.startswith("avf:dryrun:"):
+            self.set_dry_run(message.endswith(":1"))
+        elif message == "avf:quick-settings:toggle":
+            self.toggle_quick_settings()
+        elif message == "avf:settings:open":
+            self.open_settings()
         elif message == "avf:context":
             if self.setup_required:
                 self.launch_setup()
@@ -599,6 +639,12 @@ class NativeVoiceController:
 
     def _setup_config_action(self) -> None:
         mw.addonManager.setConfigAction(ADDON_MODULE, self.open_settings)
+
+    def _setup_settings_menu_action(self) -> None:
+        action = QAction("Anki Voice Field: Settings", mw)
+        qconnect(action.triggered, self.open_settings)
+        mw.form.menuTools.addAction(action)
+        self.settings_action = action
 
     def _setup_hotkey(self) -> None:
         hotkey = str(self.config()["hotkey"]).strip()

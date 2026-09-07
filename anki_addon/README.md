@@ -11,15 +11,18 @@ transcription.
 3. Speak, then press `F8` again.
 4. Continue reviewing while the FIFO queue transcribes the audio.
 5. Edit and save the transcript in the modeless Anki dialog, or disable
-   `Review` in the strip for verified automatic saving.
+   `Review before saving` in the quick-settings row for verified automatic
+   saving. Use `Hide settings` when you want only the compact recording strip.
 
-Open **Tools > Add-ons**, select **Anki Voice Field**, and click **Config** for
-the Anki-native control and settings panel. It contains Record/Stop, Test Anki,
-live status, destination and queue information, review and dry-run settings,
-field-selection rules, and recent activity. The external helper window is only
-an optional troubleshooting client.
+Open **Tools > Anki Voice Field: Settings** for the Anki-native control and
+settings panel. It is also available from **Tools > Add-ons > Anki Voice Field
+> Config** and **All settings…** beneath the reviewer strip. It contains
+Record/Stop, Test Anki, live status, destination and queue information, review
+and dry-run settings, field-selection rules, and recent activity. The external
+helper window is only an optional troubleshooting client.
 
-The add-on intentionally adds no separate commands to Anki's **Tools** menu.
+The Tools menu contains only the Settings shortcut; the redundant Record/Stop
+and Setup Helper commands are intentionally omitted.
 
 The add-on resolves `Lecture Notes` first, then Image Occlusion `Remarks`, then
 `Back`, `Extra`, `Back Extra`, or `Remarks`. The selected card, note, and field

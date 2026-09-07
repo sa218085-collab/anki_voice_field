@@ -89,4 +89,4 @@ Write-Host "Installed personal add-on to:"
 Write-Host $Destination
 Write-Host ""
 Write-Host "Restart Anki, then use the reviewer strip or F8."
-Write-Host "Settings: Tools > Add-ons > Anki Voice Field > Config."
+Write-Host "Settings: Tools > Anki Voice Field: Settings."

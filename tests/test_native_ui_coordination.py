@@ -70,12 +70,26 @@ class NativeUICoordinationTests(unittest.TestCase):
         ):
             self.assertIn(visible_control, settings_source)
 
-    def test_voice_field_does_not_clutter_anki_tools_menu(self) -> None:
+    def test_tools_menu_keeps_only_the_settings_shortcut(self) -> None:
         controller_source = (ADDON_FOLDER / "controller.py").read_text(encoding="utf-8")
-        self.assertNotIn("menuTools.addAction", controller_source)
-        self.assertNotIn("Anki Voice Field: Settings", controller_source)
+        self.assertEqual(controller_source.count("menuTools.addAction"), 1)
+        self.assertEqual(controller_source.count('"Anki Voice Field: Settings"'), 1)
         self.assertNotIn("Anki Voice Field: Record / Stop", controller_source)
         self.assertNotIn("Anki Voice Field: Setup Helper", controller_source)
+
+    def test_reviewer_quick_settings_are_functional_and_collapsible(self) -> None:
+        controller_source = (ADDON_FOLDER / "controller.py").read_text(encoding="utf-8")
+        script_source = (ADDON_FOLDER / "web" / "reviewer-strip.js").read_text(
+            encoding="utf-8"
+        )
+        for command in (
+            "avf:quick-settings:toggle",
+            "avf:dryrun:",
+            "avf:settings:open",
+        ):
+            self.assertIn(command, controller_source)
+        self.assertIn("quickSettings.hidden = !settingsExpanded", script_source)
+        self.assertIn("dryRun.checked = Boolean(state.dry_run)", script_source)
 
 
 if __name__ == "__main__":

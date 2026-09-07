@@ -16,21 +16,24 @@ the answer controls. It shows:
 - live recording, transcription, review, save, and error status
 - the resolved destination field
 - the number of pending voice notes
-- a persistent `Review` toggle
+- a collapsible quick-settings row for `Review before saving`, `Dry run`, and
+  opening the full settings panel
 
 The card, note, and field are locked as soon as recording starts. You may move
 to another card without redirecting that recording. Review dialogs are modeless,
 so additional recordings can continue to enter the FIFO queue.
 
-For settings and troubleshooting without leaving Anki, open **Tools > Add-ons**,
-select **Anki Voice Field**, and click **Config**. The native panel includes the
-same practical controls as the old helper window—Record/Stop, Test Anki, review
-and dry-run toggles, live status, destination, queue, and recent activity—plus
-field-selection and hotkey settings. The external helper UI is optional.
+For settings and troubleshooting without leaving Anki, click **Tools > Anki
+Voice Field: Settings**. The same panel is also available from **Tools >
+Add-ons > Anki Voice Field > Config** and the reviewer's **All settings…**
+button. It includes the same practical controls as the old helper
+window—Record/Stop, Test Anki, review and dry-run toggles, live status,
+destination, queue, and recent activity—plus field-selection and hotkey
+settings. The external helper UI is optional.
 
-Anki Voice Field does not add separate commands to Anki's **Tools** menu. The
-reviewer strip, F8 shortcut, and Add-ons Config panel provide those controls
-without cluttering the main menu.
+Only the Settings shortcut is added to Anki's **Tools** menu. Record/Stop and
+helper setup stay in the reviewer/native settings UI to avoid duplicate menu
+commands.
 
 ## Safety Rules
 

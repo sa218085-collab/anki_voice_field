@@ -105,6 +105,14 @@ class VoiceSettingsDialog(QDialog):
         self.dry_run_checkbox.setChecked(bool(config["dry_run"]))
         behavior_layout.addRow("Dry run", self.dry_run_checkbox)
 
+        self.quick_settings_checkbox = QCheckBox(
+            "Show quick settings beneath the reviewer recording controls"
+        )
+        self.quick_settings_checkbox.setChecked(
+            bool(config["reviewer_quick_settings_expanded"])
+        )
+        behavior_layout.addRow("Reviewer quick settings", self.quick_settings_checkbox)
+
         self.auto_start_checkbox = QCheckBox("Start the hidden voice service when needed")
         self.auto_start_checkbox.setChecked(bool(config["auto_start_helper"]))
         behavior_layout.addRow("Automatic helper", self.auto_start_checkbox)
@@ -193,6 +201,9 @@ class VoiceSettingsDialog(QDialog):
             {
                 "review_before_save": self.review_checkbox.isChecked(),
                 "dry_run": self.dry_run_checkbox.isChecked(),
+                "reviewer_quick_settings_expanded": (
+                    self.quick_settings_checkbox.isChecked()
+                ),
                 "auto_start_helper": self.auto_start_checkbox.isChecked(),
                 "auto_launch_helper_on_anki_startup": (
                     self.launch_on_startup_checkbox.isChecked()
