@@ -69,7 +69,11 @@ foreach ($RelativePath in $PreservedFiles.Keys) {
     if ($RelativePath -eq "config.json") {
         $DefaultConfig = Get-Content -Raw -LiteralPath $RestorePath | ConvertFrom-Json
         $OldConfig = Get-Content -Raw -LiteralPath $PreservedPath | ConvertFrom-Json
+        $DeprecatedConfigProperties = @("show_advanced_menu_items")
         foreach ($Property in $OldConfig.PSObject.Properties) {
+            if ($Property.Name -in $DeprecatedConfigProperties) {
+                continue
+            }
             $DefaultConfig | Add-Member -NotePropertyName $Property.Name -NotePropertyValue $Property.Value -Force
         }
         $DefaultConfig | ConvertTo-Json -Depth 10 | Set-Content -Encoding UTF8 -LiteralPath $RestorePath
@@ -84,4 +88,5 @@ foreach ($RelativePath in $PreservedFiles.Keys) {
 Write-Host "Installed personal add-on to:"
 Write-Host $Destination
 Write-Host ""
-Write-Host "Restart Anki, then use Tools > Anki Voice Field: Record / Stop."
+Write-Host "Restart Anki, then use the reviewer strip or F8."
+Write-Host "Settings: Tools > Add-ons > Anki Voice Field > Config."

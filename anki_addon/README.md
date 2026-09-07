@@ -19,6 +19,8 @@ live status, destination and queue information, review and dry-run settings,
 field-selection rules, and recent activity. The external helper window is only
 an optional troubleshooting client.
 
+The add-on intentionally adds no separate commands to Anki's **Tools** menu.
+
 The add-on resolves `Lecture Notes` first, then Image Occlusion `Remarks`, then
 `Back`, `Extra`, `Back Extra`, or `Remarks`. The selected card, note, and field
 are locked at recording start.

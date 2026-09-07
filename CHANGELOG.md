@@ -7,6 +7,8 @@
 - Add modeless native transcript review, re-record, cancel, and recovery flows.
 - Add a native Add-ons Config panel with recording controls, helper/model
   status, review and dry-run settings, field rules, and recent activity.
+- Remove redundant Anki Tools menu commands; use the reviewer strip, F8, and
+  Add-ons Config panel instead.
 - Lock the card, note, and field synchronously when recording starts.
 - Move the recording pipeline into a headless, loopback-only v2 service with
   explicit jobs, FIFO review order, event cursors, and protocol detection.

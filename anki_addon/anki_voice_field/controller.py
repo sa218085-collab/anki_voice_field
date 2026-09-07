@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from aqt import gui_hooks, mw
-from aqt.qt import QAction, QKeySequence, QShortcut, QTimer, Qt
+from aqt.qt import QKeySequence, QShortcut, QTimer, Qt
 from aqt.reviewer import ReviewerBottomBar
 from aqt.utils import qconnect, showInfo, tooltip
 
@@ -31,7 +31,6 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "auto_start_helper": True,
     "auto_launch_helper_on_anki_startup": True,
     "auto_setup_helper": False,
-    "show_advanced_menu_items": False,
     "target_field_name": "Lecture Notes",
     "image_occlusion_model_hints": ["Image Occlusion"],
     "image_occlusion_fallback_field_name": "Remarks",
@@ -71,7 +70,6 @@ class NativeVoiceController:
         self.settings_dialog: VoiceSettingsDialog | None = None
         self.recent_activity: deque[str] = deque(maxlen=150)
         self.shortcuts: list[QShortcut] = []
-        self.actions: list[QAction] = []
 
         self.poll_timer = QTimer(mw)
         self.poll_timer.setInterval(max(100, int(self.config()["poll_interval_ms"])))
@@ -80,7 +78,6 @@ class NativeVoiceController:
 
         self._setup_web_assets()
         self._setup_hooks()
-        self._setup_menu()
         self._setup_config_action()
         self._setup_hotkey()
         self._add_activity("Anki Voice Field v2 loaded inside Anki.")
@@ -600,26 +597,8 @@ class NativeVoiceController:
             self.last_revision = -2
             self.push_ui_state()
 
-    def _setup_menu(self) -> None:
-        self._add_action("Anki Voice Field: Settings", self.open_settings)
-        self._add_action("Anki Voice Field: Record / Stop", self.toggle_recording)
-        self._add_action("Anki Voice Field: Setup Helper", self.launch_setup)
-        if bool(self.config()["show_advanced_menu_items"]):
-            self._add_action("Anki Voice Field: Open Legacy Client", self.open_legacy_client)
-            self._add_action("Anki Voice Field: Status Details", self.show_details)
-            self._add_action(
-                "Anki Voice Field: Test Connection",
-                lambda: self._run_command(self.client.test_anki),
-            )
-
     def _setup_config_action(self) -> None:
         mw.addonManager.setConfigAction(ADDON_MODULE, self.open_settings)
-
-    def _add_action(self, label: str, callback: Callable[[], None]) -> None:
-        action = QAction(label, mw)
-        qconnect(action.triggered, callback)
-        mw.form.menuTools.addAction(action)
-        self.actions.append(action)
 
     def _setup_hotkey(self) -> None:
         hotkey = str(self.config()["hotkey"]).strip()

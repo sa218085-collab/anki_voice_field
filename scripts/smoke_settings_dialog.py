@@ -27,7 +27,6 @@ def main() -> None:
         "target_field_name": "Lecture Notes",
         "image_occlusion_fallback_field_name": "Remarks",
         "default_fallback_field_names": ["Back", "Extra", "Back Extra", "Remarks"],
-        "show_advanced_menu_items": False,
     }
     dialog = VoiceSettingsDialog(
         None,

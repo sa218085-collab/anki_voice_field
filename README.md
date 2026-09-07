@@ -28,6 +28,10 @@ same practical controls as the old helper window—Record/Stop, Test Anki, revie
 and dry-run toggles, live status, destination, queue, and recent activity—plus
 field-selection and hotkey settings. The external helper UI is optional.
 
+Anki Voice Field does not add separate commands to Anki's **Tools** menu. The
+reviewer strip, F8 shortcut, and Add-ons Config panel provide those controls
+without cluttering the main menu.
+
 ## Safety Rules
 
 - Only reads the current reviewer card.

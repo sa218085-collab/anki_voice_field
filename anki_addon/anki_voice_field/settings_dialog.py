@@ -146,15 +146,13 @@ class VoiceSettingsDialog(QDialog):
         root.addWidget(activity_group, 1)
 
         advanced_row = QHBoxLayout()
-        self.advanced_checkbox = QCheckBox("Show advanced troubleshooting menu items")
-        self.advanced_checkbox.setChecked(bool(config["show_advanced_menu_items"]))
-        self.advanced_checkbox.setToolTip("Tools menu changes appear after restarting Anki.")
+        advanced_label = QLabel("Advanced troubleshooting")
         self.legacy_button = QPushButton("Open Legacy Helper")
         self.legacy_button.setToolTip(
             "Optional troubleshooting client. Normal use should stay inside Anki."
         )
         self.legacy_button.clicked.connect(open_legacy_client)
-        advanced_row.addWidget(self.advanced_checkbox)
+        advanced_row.addWidget(advanced_label)
         advanced_row.addStretch(1)
         advanced_row.addWidget(self.legacy_button)
         root.addLayout(advanced_row)
@@ -203,7 +201,6 @@ class VoiceSettingsDialog(QDialog):
                 "target_field_name": preferred,
                 "image_occlusion_fallback_field_name": image_field,
                 "default_fallback_field_names": fallbacks,
-                "show_advanced_menu_items": self.advanced_checkbox.isChecked(),
             }
         )
 

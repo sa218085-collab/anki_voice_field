@@ -30,10 +30,6 @@ the legacy helper.
   helper environment is missing. The default is false so Anki startup never
   opens a setup window or downloads packages unexpectedly.
 
-`show_advanced_menu_items`
-: When false, the Tools menu only shows `Anki Voice Field: Record / Stop`.
-  When true, extra test/debug helper actions are shown.
-
 `target_field_name`
 : The preferred field to append notes into.
 

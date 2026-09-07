@@ -70,6 +70,13 @@ class NativeUICoordinationTests(unittest.TestCase):
         ):
             self.assertIn(visible_control, settings_source)
 
+    def test_voice_field_does_not_clutter_anki_tools_menu(self) -> None:
+        controller_source = (ADDON_FOLDER / "controller.py").read_text(encoding="utf-8")
+        self.assertNotIn("menuTools.addAction", controller_source)
+        self.assertNotIn("Anki Voice Field: Settings", controller_source)
+        self.assertNotIn("Anki Voice Field: Record / Stop", controller_source)
+        self.assertNotIn("Anki Voice Field: Setup Helper", controller_source)
+
 
 if __name__ == "__main__":
     unittest.main()
